@@ -87,8 +87,6 @@ dmypy.json
 
 # --- Project Specific (vnstock) ---
 # Data & Logs
-*.xlsx
-*.xls
 # *.csv # Thường giữ lại dữ liệu mẫu nhỏ
 *.db
 *.sqlite
