@@ -112,3 +112,13 @@ class EquityFundamental(BaseDetailUI):
     def ratios(self, orient: str = "report", **kwargs) -> Any:
         """Get financial ratios (alias)."""
         return self.ratio(orient=orient, **kwargs)
+
+    @optimize_execution("UI")
+    def note(self, period: str = "year", orient: str = "report", **kwargs) -> Any:
+        """Get financial notes statement."""
+        df = self._dispatch(
+            "Fundamental", "equity", "note", period=period, **kwargs
+        )
+        if isinstance(df, pd.DataFrame):
+            return self._format_output(df, orient)
+        return df

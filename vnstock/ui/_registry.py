@@ -903,6 +903,15 @@ MAP = {
                 "DataFrame",
                 "Financial ratios.",
             ),
+            "note": (
+                "api",
+                "api.financial",
+                "Finance",
+                "note",
+                "VCI",
+                "DataFrame",
+                "Financial statement notes.",
+            ),
         }
     },
     "Retail": {

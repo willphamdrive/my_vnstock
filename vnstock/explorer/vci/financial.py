@@ -269,6 +269,7 @@ class Finance:
                     "titleVi",
                     "fullTitleVi",
                     "fullTitleEn",
+                    "level",
                 ]
             ]
             combine_ls.append(df)
@@ -408,8 +409,12 @@ class Finance:
             en_dict = meta_df.set_index("field_name")["en_name"].to_dict()
             snake_dict = None
 
-        # Identify which columns are items vs metadata
-        item_cols = [col for col in report_df.columns if col in vi_dict]
+        # Identify and sort item columns based on logical order in meta_df
+        ordered_fields = meta_df["field_name"].tolist() if "field_name" in meta_df.columns else []
+        if ordered_fields:
+            item_cols = [col for col in ordered_fields if col in report_df.columns and col in vi_dict]
+        else:
+            item_cols = [col for col in report_df.columns if col in vi_dict]
 
         # Create period labels if not already present
         if "period" not in report_df.columns:
@@ -460,6 +465,10 @@ class Finance:
 
             processed_df["item"] = processed_df["item_id"].map(vi_dict)
             processed_df["item_en"] = processed_df["item_id"].map(en_dict)
+            
+            # Map levels
+            level_dict = meta_df.set_index("field_name")["level"].to_dict() if "level" in meta_df.columns else {}
+            processed_df["level"] = processed_df["item_id"].map(level_dict).fillna(1).astype(int)
 
             # Normalize item_id to match snake_case convention
             if snake_dict:
@@ -469,7 +478,7 @@ class Finance:
             else:
                 try:
                     from vnstock.core.utils.field.handler import FieldHandler
-
+ 
                     field_handler = FieldHandler()
                     # Fallback to normalized English name if available, otherwise original id
                     processed_df["item_id"] = processed_df["item_en"].apply(
@@ -486,10 +495,10 @@ class Finance:
             period_cols = [
                 c
                 for c in processed_df.columns
-                if c not in ["item", "item_en", "item_id"]
+                if c not in ["item", "item_en", "item_id", "level"]
             ]
             # Use original order for columns
-            processed_df = processed_df[["item", "item_en", "item_id"] + period_cols]
+            processed_df = processed_df[["item", "item_en", "item_id", "level"] + period_cols]
 
             return processed_df
 
@@ -634,6 +643,32 @@ class Finance:
         """
         return self._get_financial_report(
             "ratio", period=period, lang=lang, dropna=dropna, show_log=show_log
+        )
+
+    @optimize_execution("VCI")
+    def note(
+        self,
+        period: Optional[str] = None,
+        lang: Optional[str] = "en",
+        dropna: Optional[bool] = True,
+        show_log: Optional[bool] = False,
+        limit: Optional[int] = None,
+    ) -> pd.DataFrame:
+        """
+        Trích xuất thuyết minh báo cáo tài chính (Financial Notes) từ nguồn VCI REST API.
+
+        Tham số:
+            - period (str): Kỳ báo cáo ('year' hoặc 'quarter').
+            - lang (str): Ngôn ngữ ('vi' hoặc 'en').
+            - dropna (bool): Loại bỏ các cột 0.
+            - show_log (bool): Hiển thị log.
+            - limit (int): Số lượng kỳ báo cáo cần lấy.
+
+        Returns:
+            pd.DataFrame: Bảng thuyết minh báo cáo tài chính.
+        """
+        return self._get_financial_report(
+            "note", period=period, lang=lang, dropna=dropna, show_log=show_log, limit=limit
         )
 
 

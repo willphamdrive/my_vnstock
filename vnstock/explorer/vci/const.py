@@ -12,6 +12,7 @@ _IQ_FINANCE_REPORT = {
     "income_statement": "INCOME_STATEMENT",
     "cash_flow": "CASH_FLOW",
     "ratio": "RATIO",
+    "note": "NOTE",
 }
 
 _INTERVAL_MAP = {

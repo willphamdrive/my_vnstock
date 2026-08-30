@@ -119,6 +119,20 @@ class Finance(BaseAdapter):
         """Retrieve financial ratio data."""
         pass
 
+    @optimize_execution("API")
+    @retry(
+        stop=stop_after_attempt(Config.RETRIES),
+        wait=wait_exponential(
+            multiplier=Config.BACKOFF_MULTIPLIER,
+            min=Config.BACKOFF_MIN,
+            max=Config.BACKOFF_MAX,
+        ),
+    )
+    @dynamic_method
+    def note(self, *args: Any, **kwargs: Any) -> Any:
+        """Retrieve financial note data."""
+        pass
+
     def _delegate_to_provider(
         self, method_name: str, symbol: str = None, **kwargs: Any
     ) -> Any:
